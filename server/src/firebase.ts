@@ -10,7 +10,9 @@ if (config.useEmulators) {
 
 const options: AppOptions = { projectId: config.projectId, storageBucket: config.storageBucket };
 if (!config.useEmulators) {
-  options.credential = config.serviceAccountBase64
+  options.credential = config.serviceAccountJson
+    ? cert(JSON.parse(config.serviceAccountJson))
+    : config.serviceAccountBase64
     ? cert(JSON.parse(Buffer.from(config.serviceAccountBase64, 'base64').toString('utf8')))
     : applicationDefault();
 }

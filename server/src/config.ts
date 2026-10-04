@@ -30,6 +30,13 @@ export const config = {
   projectId,
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket || `${projectId}.appspot.com`,
   serviceAccountBase64: process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
+  /** The service-account JSON pasted as-is (easier on Vercel than base64). */
+  serviceAccountJson: process.env.FIREBASE_SERVICE_ACCOUNT,
+  onVercel,
+  /** Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` to /api/jobs/run. */
+  cronSecret: process.env.CRON_SECRET || '',
+  /** Vercel limits request bodies to 4.5 MB, so uploads are capped lower there. */
+  maxUploadBytes: Number(process.env.MAX_UPLOAD_BYTES || (onVercel ? 4 * 1024 * 1024 : 10 * 1024 * 1024)),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 1500),
   enableJobs: bool(process.env.ENABLE_JOBS, true),
   isProduction: process.env.NODE_ENV === 'production' || inGoogleCloud || onVercel,

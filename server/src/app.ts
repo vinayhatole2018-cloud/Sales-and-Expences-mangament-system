@@ -8,6 +8,8 @@ import { requireAuth } from './middleware/auth';
 import { errorHandler, notFoundHandler } from './middleware/error';
 import { authRouter } from './routes/auth';
 import { setupRouter } from './routes/setup';
+import { runJobsOnce } from './jobs';
+import { timingSafeEqual } from 'node:crypto';
 import { customersRouter } from './routes/customers';
 import { collegesRouter } from './routes/colleges';
 import { conferenceEventsRouter } from './routes/conferenceEvents';
@@ -57,6 +59,16 @@ export function createApp() {
   app.use('/api/setup', setupRouter);
 
   // Everything below requires a signed-in, active employee.
+  // Scheduled background jobs (Vercel Cron). Protected by CRON_SECRET.
+  app.get('/api/jobs/run', async (req, res) => {
+    const expected = `Bearer ${config.cronSecret}`;
+    const given = req.headers.authorization ?? '';
+    const ok = Boolean(config.cronSecret) && given.length === expected.length && timingSafeEqual(Buffer.from(given), Buffer.from(expected));
+    if (!ok) return res.status(401).json({ error: 'Unauthorized.' });
+    await runJobsOnce();
+    res.json({ ok: true, ranAt: new Date().toISOString() });
+  });
+
   app.use('/api', requireAuth);
   app.use('/api/me', meRouter);
   app.use('/api/dashboard', dashboardRouter);

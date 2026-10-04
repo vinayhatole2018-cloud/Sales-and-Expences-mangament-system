@@ -2,7 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'node:path';
 import { z } from 'zod';
-import { ALLOWED_UPLOAD_TYPES, ATTACHMENT_CATEGORIES, MAX_UPLOAD_BYTES, MODULE_LIST } from '@pbms/shared';
+import { ALLOWED_UPLOAD_TYPES, ATTACHMENT_CATEGORIES, MODULE_LIST } from '@pbms/shared';
+import { config } from '../config';
 import { bucket, db, COL } from '../firebase';
 import { can, type Ctx } from '../lib/context';
 import { badRequest, forbidden, notFound } from '../lib/errors';
@@ -11,7 +12,7 @@ import { fetchAll, fetchDoc, nowIso, type Doc } from '../lib/list';
 
 export const attachmentsRouter = Router();
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: config.maxUploadBytes, files: 1 } });
 
 const ENTITY_COLLECTIONS: Record<string, string> = {
   customer: COL.customers,

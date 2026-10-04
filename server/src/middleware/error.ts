@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import multer from 'multer';
 import { AppError } from '../lib/errors';
+import { config } from '../config';
 
 function humanPath(path: (string | number)[]): string {
   const last = [...path].reverse().find((p) => typeof p === 'string') as string | undefined;
@@ -21,7 +22,7 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
     return res.status(err.status).json({ error: err.message, details: err.details });
   }
   if (err instanceof multer.MulterError) {
-    const message = err.code === 'LIMIT_FILE_SIZE' ? 'File is too large. Maximum size is 10 MB.' : `Upload failed: ${err.message}`;
+    const message = err.code === 'LIMIT_FILE_SIZE' ? `File is too large. Maximum size is ${Math.round(config.maxUploadBytes / 1024 / 1024)} MB.` : `Upload failed: ${err.message}`;
     return res.status(400).json({ error: message });
   }
   // Firestore transaction contention or unexpected failures.
