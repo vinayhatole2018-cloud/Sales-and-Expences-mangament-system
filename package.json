@@ -1,0 +1,28 @@
+{
+  "name": "publication-business-manager",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Publication Business Management & Sales Management System",
+  "workspaces": [
+    "shared",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "local": "node scripts/local.mjs",
+    "emulators": "node scripts/emulators.mjs",
+    "dev": "concurrently -k -n api,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
+    "seed": "npm run seed -w server",
+    "create-admin": "npm run create-admin -w server",
+    "build": "npm run build -w server && npm run build -w web",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "test": "npm run test -w server",
+    "dev:prod": "concurrently -k -n api,web -c blue,magenta \"npm run dev:prod -w server\" \"npm run dev:prod -w web\"",
+    "create-admin:prod": "npm run create-admin:prod -w server --",
+    "deploy:rules": "firebase deploy --project prod --only firestore:rules,firestore:indexes,storage",
+    "setup:prod": "npm run setup:prod -w server --"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

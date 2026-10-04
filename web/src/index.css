@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  /* Chart palette (validated reference instance, fixed order). */
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-series-3: #1baf7a;
+  --color-series-4: #eda100;
+  --color-series-5: #e87ba4;
+  --color-series-6: #008300;
+  --color-series-7: #4a3aa7;
+  --color-series-8: #e34948;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: #f6f7f9;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+  /* Form controls share one look. */
+  .input {
+    @apply block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 disabled:bg-slate-100 disabled:text-slate-500;
+  }
+  .input-error {
+    @apply border-red-400 focus:border-red-500 focus:ring-red-500/20;
+  }
+  .label {
+    @apply mb-1 block text-xs font-medium text-slate-600;
+  }
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+}

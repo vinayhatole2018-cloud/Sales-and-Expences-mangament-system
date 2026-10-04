@@ -1,0 +1,11 @@
+rules_version = '2';
+// All reads and writes go through the API server (Firebase Admin SDK), which
+// enforces permissions, validation, financial calculations and audit logging.
+// Browsers are never allowed to touch Firestore directly.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

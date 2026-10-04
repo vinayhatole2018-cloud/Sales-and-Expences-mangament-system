@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-pbms",
+    "prod": "publish-management-syste-63f32"
+  }
+}
