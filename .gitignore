@@ -8,3 +8,5 @@ service-account*.json
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+functions-dist/
+server/.setup-code

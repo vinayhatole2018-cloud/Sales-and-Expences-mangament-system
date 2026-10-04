@@ -20,7 +20,9 @@
     "dev:prod": "concurrently -k -n api,web -c blue,magenta \"npm run dev:prod -w server\" \"npm run dev:prod -w web\"",
     "create-admin:prod": "npm run create-admin:prod -w server --",
     "deploy:rules": "firebase deploy --project prod --only firestore:rules,firestore:indexes,storage",
-    "setup:prod": "npm run setup:prod -w server --"
+    "setup:prod": "npm run setup:prod -w server --",
+    "build:functions": "node scripts/build-functions.mjs",
+    "deploy": "node scripts/build-functions.mjs && npm run build -w web && firebase deploy --project prod --only hosting,functions,firestore"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

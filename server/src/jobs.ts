@@ -80,6 +80,11 @@ async function scheduledBackup() {
   await pruneScheduledBackups(s.backup.keep);
 }
 
+/** Runs every background job once (used by the Cloud Functions scheduler). */
+export async function runJobsOnce() {
+  await tick();
+}
+
 async function tick() {
   for (const [name, job] of [
     ['reminders', reminders],

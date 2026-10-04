@@ -28,6 +28,7 @@ const loginLimiter = rateLimit({
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: { error: 'Too many sign-in attempts. Please wait 15 minutes and try again.' },
+  validate: { trustProxy: false },
 });
 
 function actorCtx(user: { id: string; name: string; email: string; role: string; employeeId: string }, roleName: string, ip: string): Ctx {

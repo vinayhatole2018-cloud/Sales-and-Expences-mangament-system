@@ -7,6 +7,7 @@ import { config } from './config';
 import { requireAuth } from './middleware/auth';
 import { errorHandler, notFoundHandler } from './middleware/error';
 import { authRouter } from './routes/auth';
+import { setupRouter } from './routes/setup';
 import { customersRouter } from './routes/customers';
 import { collegesRouter } from './routes/colleges';
 import { conferenceEventsRouter } from './routes/conferenceEvents';
@@ -23,7 +24,8 @@ import { auditRouter, backupsRouter, notificationsRouter, searchRouter, settings
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 1);
+  // Behind Firebase Hosting + Cloud Functions the client IP arrives via several proxies.
+  app.set('trust proxy', config.inGoogleCloud ? true : 1);
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
   app.use(
@@ -46,11 +48,13 @@ export function createApp() {
       standardHeaders: 'draft-7',
       legacyHeaders: false,
       message: { error: 'Too many requests. Please wait a moment and try again.' },
+      validate: { trustProxy: false },
     }),
   );
 
   // Sign-in against the system's own user database (public endpoints).
   app.use('/api/auth', authRouter);
+  app.use('/api/setup', setupRouter);
 
   // Everything below requires a signed-in, active employee.
   app.use('/api', requireAuth);

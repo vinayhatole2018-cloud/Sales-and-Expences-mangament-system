@@ -1,8 +1,48 @@
 import { useState, type FormEvent } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api, errorMessage } from '../lib/api';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../lib/auth';
-import { Button, Checkbox, ErrorBox } from '../components/ui';
+import { Button, Checkbox, ErrorBox, Field, Input } from '../components/ui';
+
+/** One-time owner creation on a brand-new live database (needs the setup code). */
+function FirstSetup({ onDone }: { onDone: (email: string, password: string) => Promise<void> }) {
+  const [f, setF] = useState({ setupCode: '', name: '', email: '', password: '', confirm: '' });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (f.password !== f.confirm) return setError('The passwords do not match.');
+    setBusy(true);
+    try {
+      await api.post('/setup/owner', { setupCode: f.setupCode, name: f.name, email: f.email, password: f.password });
+      await onDone(f.email, f.password);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <form onSubmit={submit} className="w-full max-w-sm space-y-4">
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-900">First-time setup</h2>
+        <p className="mt-1 text-sm text-slate-500">The database is empty. Create the owner (Super Admin) login. This screen disappears once the owner exists.</p>
+      </div>
+      {error && <ErrorBox message={error} />}
+      <Field label="Setup code" required hint="From server/.setup-code on the computer that deployed the app.">
+        <Input value={f.setupCode} onChange={(e) => setF({ ...f, setupCode: e.target.value })} autoComplete="off" autoFocus />
+      </Field>
+      <Field label="Your name" required><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
+      <Field label="Email (login ID)" required><Input type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
+      <Field label="Password" required hint="At least 8 characters with letters and numbers."><Input type="password" autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
+      <Field label="Confirm password" required><Input type="password" autoComplete="new-password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></Field>
+      <Button type="submit" className="w-full" loading={busy}>Create owner login</Button>
+    </form>
+  );
+}
 
 export function LoginPage() {
   const { user, profile, login, profileError } = useAuth();
@@ -14,6 +54,8 @@ export function LoginPage() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  const setup = useQuery({ queryKey: ['setup-status'], queryFn: () => api.get<{ needsOwner: boolean }>('/setup/status'), retry: false, staleTime: 60_000 });
 
   if (user && profile) return <Navigate to={location.state?.from ?? '/'} replace />;
 
@@ -47,6 +89,14 @@ export function LoginPage() {
       </div>
 
       <div className="flex items-center justify-center p-6">
+        {setup.data?.needsOwner ? (
+          <FirstSetup
+            onDone={async (email, pw) => {
+              await login(email, pw, true);
+              navigate('/settings', { replace: true });
+            }}
+          />
+        ) : (
         <form onSubmit={submit} className="w-full max-w-sm space-y-5">
           <div>
             <h2 className="text-2xl font-semibold text-slate-900">Sign in</h2>
@@ -78,6 +128,7 @@ export function LoginPage() {
             Sign in
           </Button>
         </form>
+        )}
       </div>
     </div>
   );
