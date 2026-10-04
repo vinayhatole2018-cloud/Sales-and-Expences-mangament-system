@@ -15,7 +15,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const out = path.join(root, '.vercel/output');
+// Output folder: <repo>/.vercel/output by default, or --out <dir> (relative to the
+// repo root) when Vercel's Root Directory is a sub-folder such as web/.
+const outArg = process.argv.indexOf('--out');
+const out = outArg > 0 ? path.resolve(root, process.argv[outArg + 1]) : path.join(root, '.vercel/output');
 const func = path.join(out, 'functions/api.func');
 const REGION = process.env.VERCEL_FUNCTION_REGION || 'bom1'; // Mumbai, next to Firestore asia-south1
 
@@ -101,4 +104,4 @@ writeFileSync(
   ),
 );
 
-console.log(`✔ Vercel output ready in .vercel/output (API region ${REGION})`);
+console.log(`✔ Vercel output ready in ${path.relative(root, out).split(path.sep).join('/')} (API region ${REGION})`);

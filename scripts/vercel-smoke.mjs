@@ -8,7 +8,10 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const out = path.join(root, '.vercel/output');
+// Output folder: <repo>/.vercel/output by default, or --out <dir> (relative to the
+// repo root) when Vercel's Root Directory is a sub-folder such as web/.
+const outArg = process.argv.indexOf('--out');
+const out = outArg > 0 ? path.resolve(root, process.argv[outArg + 1]) : path.join(root, '.vercel/output');
 process.env.USE_FIREBASE_EMULATORS ??= 'true';
 process.env.ENABLE_JOBS = 'false';
 process.env.CRON_SECRET ??= 'smoke-secret';
