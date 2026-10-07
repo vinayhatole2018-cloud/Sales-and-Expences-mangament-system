@@ -19,7 +19,20 @@ const firebaseConfig = (() => {
   }
 })();
 
-const projectId = process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || process.env.GCLOUD_PROJECT || 'demo-pbms';
+/** The service-account key (raw JSON or base64), if one was provided. */
+const serviceAccountText =
+  process.env.FIREBASE_SERVICE_ACCOUNT ||
+  (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 ? Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8') : '');
+const serviceAccountProject = (() => {
+  try {
+    return (JSON.parse(serviceAccountText || '{}') as { project_id?: string }).project_id;
+  } catch {
+    return undefined;
+  }
+})();
+
+const projectId =
+  process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || process.env.GCLOUD_PROJECT || serviceAccountProject || 'demo-pbms';
 
 export const config = {
   port: Number(process.env.PORT || 4001),
@@ -28,10 +41,13 @@ export const config = {
   // Emulators by default for local development; never in Google Cloud or on Vercel.
   useEmulators: bool(process.env.USE_FIREBASE_EMULATORS, !inGoogleCloud && !onVercel),
   projectId,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket || `${projectId}.appspot.com`,
-  serviceAccountBase64: process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
-  /** The service-account JSON pasted as-is (easier on Vercel than base64). */
-  serviceAccountJson: process.env.FIREBASE_SERVICE_ACCOUNT,
+  // Projects created since late 2024 use <id>.firebasestorage.app; older ones <id>.appspot.com.
+  storageBucket:
+    process.env.FIREBASE_STORAGE_BUCKET ||
+    firebaseConfig.storageBucket ||
+    (serviceAccountProject ? `${projectId}.firebasestorage.app` : `${projectId}.appspot.com`),
+  /** The service-account key JSON (from FIREBASE_SERVICE_ACCOUNT, or decoded from FIREBASE_SERVICE_ACCOUNT_BASE64). */
+  serviceAccountText,
   onVercel,
   /** Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` to /api/jobs/run. */
   cronSecret: process.env.CRON_SECRET || '',

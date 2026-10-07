@@ -5,18 +5,19 @@
 The repo deploys as **one Vercel project**: the web app on Vercel's CDN and the API as a Node.js function in Mumbai (`bom1`), on the same domain. `vercel.json` makes Vercel run `scripts/vercel-build.mjs`, which writes Vercel's Build Output (`.vercel/output`). Test the exact package locally with `npm run vercel-build && npm run vercel-smoke` (needs the emulator running).
 
 **Vercel → Project → Settings**
-- Root Directory: the repository root (leave empty). Framework Preset: **Other** (vercel.json sets the commands).
-- Environment Variables (Production):
+- Root Directory: the repository root (leave empty), or `web` (then `web/vercel.json` is used). Framework Preset: **Other** (vercel.json sets the commands).
+- Environment Variables, with **Production and Preview ticked** (variables scoped to "Development" only never reach the live site):
 
 | Name | Value |
 |---|---|
-| `FIREBASE_PROJECT_ID` | `publish-management-syste-63f32` |
-| `FIREBASE_STORAGE_BUCKET` | `publish-management-syste-63f32.firebasestorage.app` |
-| `FIREBASE_SERVICE_ACCOUNT` | the **whole contents** of the service-account JSON key (secret) |
+| `FIREBASE_SERVICE_ACCOUNT` | **required** — the whole contents of the service-account JSON key (secret). Project ID and storage bucket are read from it. |
 | `CRON_SECRET` | any long random string (protects the daily jobs endpoint) |
-| `PBMS_SETUP_CODE` | any long random string — used once on the sign-in page to create the owner |
+| `PBMS_SETUP_CODE` | only for an empty database — used once on the sign-in page to create the owner |
+| `FIREBASE_PROJECT_ID`, `FIREBASE_STORAGE_BUCKET` | optional overrides |
 
-Do **not** set `NODE_ENV`. Uploads are limited to 4 MB on Vercel (request size limit); backup *restore* of large files must be done locally with the key file.
+Do **not** set `NODE_ENV`, `PORT`, `CORS_ORIGIN` or `GOOGLE_APPLICATION_CREDENTIALS` (the key file does not exist on Vercel). Variables only take effect after a **Redeploy**. If the key is missing or broken, the sign-in page shows "Server setup: …" explaining what to fix, and `/api/health` returns 503.
+
+GitHub Pages cannot host this app: it serves static files only and cannot run the API. Uploads are limited to 4 MB on Vercel (request size limit); backup *restore* of large files must be done locally with the key file.
 
 After the first deploy, open the site: the sign-in page shows **First-time setup**. Enter `PBMS_SETUP_CODE`, your name, email and password to create the Super Admin. That screen disappears once the owner exists.
 

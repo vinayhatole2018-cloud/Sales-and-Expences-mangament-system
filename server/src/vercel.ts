@@ -4,6 +4,7 @@
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createApp } from './app';
+import { credentialProblem } from './firebase';
 import { getSettings } from './lib/settings';
 import { ensureBaseData } from './seed/bootstrap';
 
@@ -20,6 +21,14 @@ function warmUp(): Promise<void> {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  // Missing or broken database key: explain it (on the login page too) instead of crashing.
+  if (credentialProblem) {
+    console.error(credentialProblem);
+    res.statusCode = req.url?.startsWith('/api/health') ? 503 : 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ ok: false, error: `Server setup: ${credentialProblem}` }));
+    return;
+  }
   await warmUp();
   return app(req as any, res as any);
 }

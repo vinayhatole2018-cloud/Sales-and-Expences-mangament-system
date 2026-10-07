@@ -8,13 +8,27 @@ if (config.useEmulators) {
   process.env.FIREBASE_STORAGE_EMULATOR_HOST ||= '127.0.0.1:9199';
 }
 
+/**
+ * Why the database can't be reached, in words an admin can act on (null when
+ * the setup looks right). The Vercel handler shows this instead of crashing.
+ */
+export let credentialProblem: string | null = null;
+
 const options: AppOptions = { projectId: config.projectId, storageBucket: config.storageBucket };
 if (!config.useEmulators) {
-  options.credential = config.serviceAccountJson
-    ? cert(JSON.parse(config.serviceAccountJson))
-    : config.serviceAccountBase64
-    ? cert(JSON.parse(Buffer.from(config.serviceAccountBase64, 'base64').toString('utf8')))
-    : applicationDefault();
+  if (config.serviceAccountText) {
+    try {
+      options.credential = cert(JSON.parse(config.serviceAccountText));
+    } catch {
+      credentialProblem =
+        'FIREBASE_SERVICE_ACCOUNT is not a valid service-account key. Paste the whole contents of the key .json file (starting with { and ending with }).';
+    }
+  } else if (config.onVercel) {
+    credentialProblem =
+      'FIREBASE_SERVICE_ACCOUNT is not set for this deployment. Add it in Vercel → Settings → Environment Variables with "Production" ticked, then redeploy.';
+  } else {
+    options.credential = applicationDefault();
+  }
 }
 
 export const app = initializeApp(options);
