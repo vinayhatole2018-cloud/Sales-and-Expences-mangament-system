@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "cd .. && npm ci --include=dev",
+  "buildCommand": "cd .. && node scripts/vercel-build.mjs --out server/.vercel/output",
+  "regions": ["bom1"]
+}
