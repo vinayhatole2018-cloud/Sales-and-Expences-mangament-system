@@ -31,21 +31,28 @@ const serviceAccountProject = (() => {
   }
 })();
 
+// The key's own project wins: a key can only open its own project, so a stale
+// FIREBASE_PROJECT_ID (e.g. the emulator's demo-pbms copied from .env) is ignored.
 const projectId =
-  process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || process.env.GCLOUD_PROJECT || serviceAccountProject || 'demo-pbms';
+  serviceAccountProject || process.env.FIREBASE_PROJECT_ID || firebaseConfig.projectId || process.env.GCLOUD_PROJECT || 'demo-pbms';
+const envBucket = process.env.FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket;
 
 export const config = {
   port: Number(process.env.PORT || 4001),
   corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map((s) => s.trim()).filter(Boolean),
   inGoogleCloud,
-  // Emulators by default for local development; never in Google Cloud or on Vercel.
-  useEmulators: bool(process.env.USE_FIREBASE_EMULATORS, !inGoogleCloud && !onVercel),
+  // Emulators by default for local development. Never in Google Cloud or on
+  // Vercel, where no emulator can exist (even if USE_FIREBASE_EMULATORS=true was copied over).
+  useEmulators: !inGoogleCloud && !onVercel && bool(process.env.USE_FIREBASE_EMULATORS, true),
   projectId,
   // Projects created since late 2024 use <id>.firebasestorage.app; older ones <id>.appspot.com.
+  // A bucket named after another project (a copied emulator value) is ignored.
   storageBucket:
-    process.env.FIREBASE_STORAGE_BUCKET ||
-    firebaseConfig.storageBucket ||
-    (serviceAccountProject ? `${projectId}.firebasestorage.app` : `${projectId}.appspot.com`),
+    envBucket && envBucket.startsWith(projectId)
+      ? envBucket
+      : serviceAccountProject
+      ? `${projectId}.firebasestorage.app`
+      : envBucket || `${projectId}.appspot.com`,
   /** The service-account key JSON (from FIREBASE_SERVICE_ACCOUNT, or decoded from FIREBASE_SERVICE_ACCOUNT_BASE64). */
   serviceAccountText,
   onVercel,
