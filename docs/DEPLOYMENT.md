@@ -5,7 +5,7 @@
 The repo deploys as **one Vercel project**: the web app on Vercel's CDN and the API as a Node.js function in Mumbai (`bom1`), on the same domain. `vercel.json` makes Vercel run `scripts/vercel-build.mjs`, which writes Vercel's Build Output (`.vercel/output`). Test the exact package locally with `npm run vercel-build && npm run vercel-smoke` (needs the emulator running).
 
 **Vercel → Project → Settings**
-- Root Directory: the repository root (leave empty), or `web` (then `web/vercel.json` is used). Framework Preset: **Other** (vercel.json sets the commands).
+- Root Directory: the repository root (leave empty), `web` or `server` — each has a `vercel.json` and a `scripts/vercel-build.mjs`, so the build command `node scripts/vercel-build.mjs` works from any of them and writes `.vercel/output` in that folder. Framework Preset: **Other**; leave the Build/Install/Output overrides off (vercel.json sets them). If a build fails, the log ends with `✖ Vercel build failed while <step>` naming the step.
 - Environment Variables, with **Production and Preview ticked** (variables scoped to "Development" only never reach the live site):
 
 | Name | Value |
