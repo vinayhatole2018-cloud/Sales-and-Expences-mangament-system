@@ -284,7 +284,7 @@ export async function loadDemoData(opts: { wipe: boolean }) {
 const isCli = (process.argv[1] ?? '').replace(/\\/g, '/').endsWith('seed/seed.ts');
 if (isCli) {
   if (!config.useEmulators) {
-    console.error('Refusing to seed: `npm run seed` wipes the database and only runs against the local emulators. For a live project use `npm run setup:prod -- --with-demo`.');
+    console.error('Refusing to seed: `npm run seed` only works against local Firebase emulators and is intended for development tests.');
     process.exit(1);
   }
   loadDemoData({ wipe: true })

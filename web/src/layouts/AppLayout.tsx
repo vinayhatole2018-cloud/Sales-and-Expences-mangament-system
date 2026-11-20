@@ -113,7 +113,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col bg-slate-900 text-slate-300">
       <Link to="/" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-4">
-        <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">{initials(settings?.businessName ?? 'VP')}</div>
+        <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">{initials(settings?.businessName || 'PM')}</div>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{settings?.businessName ?? 'Publication Manager'}</p>
           <p className="truncate text-[11px] text-slate-400">Business Management</p>

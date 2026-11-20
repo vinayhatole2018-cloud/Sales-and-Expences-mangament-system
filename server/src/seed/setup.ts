@@ -5,10 +5,9 @@
  *   - roles (Super Admin, Manager, Employee) with their permissions
  *   - business settings (defaults)
  *   - _meta/schema: the list of collections this system uses
- *   - optionally (--with-demo) the full demo data set, only into an EMPTY database
+ *   - no demo or sample business data
  *
  *   npm run setup:prod                 # structure only
- *   npm run setup:prod -- --with-demo  # structure + demo users, customers, orders…
  *
  * Safe to run more than once: existing documents are never overwritten.
  */
@@ -16,8 +15,6 @@ import { BACKUP_COLLECTIONS, PERMISSIONS_VERSION } from '@pbms/shared';
 import { config } from '../config';
 import { db, COL } from '../firebase';
 import { ensureBaseData } from './bootstrap';
-
-const withDemo = process.argv.includes('--with-demo');
 
 const DESCRIPTIONS: Record<string, string> = {
   users: 'Employees and their profiles (role, status)',
@@ -74,27 +71,14 @@ async function main() {
   );
   console.log(`✓ Schema registry written (_meta/schema, ${collections.length} collections)`);
 
-  if (withDemo) {
-    if (usersBefore > 0) {
-      console.log('! Demo data NOT loaded: the database already has users. Demo data only loads into an empty database.');
-    } else {
-      console.log('Loading demo data…');
-      const { loadDemoData } = await import('./seed');
-      await loadDemoData({ wipe: false });
-      console.log('✓ Demo data loaded');
-    }
-  }
-
   console.log('\nDocument counts:');
   for (const name of collections) {
     const n = (await db.collection(name).count().get()).data().count;
     if (n) console.log(`  ${name.padEnd(16)} ${n}`);
   }
-  console.log(
-    withDemo && usersBefore === 0
-      ? '\nDone. Sign in with the demo accounts (see server/src/seed/seed-data.ts) and CHANGE THEIR PASSWORDS, or create your own owner with npm run create-admin:prod.'
-      : '\nDone. Next: create the owner login with npm run create-admin:prod -- --email … --password … --name …',
-  );
+  console.log(usersBefore === 0
+    ? '\nDone. Next: create the owner login with npm run create-admin:prod -- --email … --password … --name …'
+    : '\nDone. The database is ready.');
   process.exit(0);
 }
 

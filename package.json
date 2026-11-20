@@ -13,7 +13,7 @@
     "emulators": "node scripts/emulators.mjs",
     "dev": "concurrently -k -n api,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
     "seed": "npm run seed -w server",
-    "create-admin": "npm run create-admin -w server",
+    "create-admin": "npm run create-admin -w server --",
     "build": "npm run build -w server && npm run build -w web",
     "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
     "test": "npm run test -w server",

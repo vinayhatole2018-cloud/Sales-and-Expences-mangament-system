@@ -31,8 +31,8 @@ export interface BusinessSettings {
 }
 
 export const DEFAULT_SETTINGS: BusinessSettings = {
-  businessName: 'Vinay Publications',
-  tagline: 'Research • Publication • Academic Services',
+  businessName: '',
+  tagline: '',
   logoAttachmentId: '',
   address: '',
   phone: '',

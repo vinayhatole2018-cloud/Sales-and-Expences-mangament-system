@@ -14,22 +14,16 @@ Requirements: Node 20+, Java 11+ (for the emulators), Firebase CLI (`npm i -g fi
 npm install
 ```
 
-**One command** (from this project folder) starts everything and loads the demo data the first time:
+**One command** (from this project folder) starts the emulators and a clean application:
 
 ```bash
 npm run local
 ```
 
-Or step by step — start the Firebase emulators (terminal 1; data is kept between restarts):
+Or step by step — start the Firebase emulators (terminal 1):
 
 ```bash
 npm run emulators
-```
-
-Load the demo data (terminal 2): 6 users, 20 customers, 10 colleges, 14 services, 30 orders across every module, 39 payments and 15 expenses.
-
-```bash
-npm run seed
 ```
 
 Start the API (port 4001) and the web app (port 5173):
@@ -38,15 +32,16 @@ Start the API (port 4001) and the web app (port 5173):
 npm run dev
 ```
 
-Open http://localhost:5173. The demo logins (owner, manager, four employees) and their password are in `server/src/seed/seed-data.ts`. They exist only in the local emulator.
+Open http://localhost:5173. Create the first owner login through the first-time setup screen. The app starts with no business records.
 
 Emulator UI (browse the raw data): http://localhost:4000
 
 ## Tests
 
-With the emulators running and seeded:
+Demo data is optional and intended only for automated testing. With the emulators running:
 
 ```bash
+npm run seed
 npm test
 ```
 
@@ -78,7 +73,7 @@ Permissions are editable per role in **Settings → Roles & permissions**, and c
 
 | Command | What it does |
 |---|---|
-| `npm run local` | Everything in one go: emulators, demo data (first run), API and web |
+| `npm run local` | Everything in one go: clean emulators, API and web |
 | `npm run emulators` | Firebase Auth, Firestore and Storage emulators with persisted data |
 | `npm run seed` | Wipe the emulators and load demo data through the API |
 | `npm run dev` | API + web in watch mode |

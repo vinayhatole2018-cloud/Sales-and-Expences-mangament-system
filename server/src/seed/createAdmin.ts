@@ -1,7 +1,7 @@
 /**
  * Creates the Super Admin (owner) login on a fresh database.
  *
- *   npm run create-admin -- --email owner@example.com --password "S3cure-pass" --name "Vinay"
+ *   npm run create-admin -- --email owner@example.com --password "S3cure-pass" --name "Administrator"
  *
  * Also creates the built-in roles and default business settings if missing.
  */
@@ -15,10 +15,10 @@ function arg(name: string): string | undefined {
 
 const email = arg('email');
 const password = arg('password');
-const name = arg('name') ?? 'Vinay';
+const name = arg('name');
 
-if (!email || !password) {
-  console.error('Usage: npm run create-admin -- --email <email> --password <password> [--name <name>]');
+if (!email || !password || !name) {
+  console.error('Usage: npm run create-admin -- --email <email> --password <password> --name <name>');
   process.exit(1);
 }
 if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {

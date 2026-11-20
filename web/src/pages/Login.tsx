@@ -78,7 +78,7 @@ export function LoginPage() {
     <div className="grid min-h-full lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-gradient-to-br from-brand-900 via-brand-800 to-slate-900 p-10 text-white lg:flex">
         <div className="flex items-center gap-2.5">
-          <div className="grid size-10 place-items-center rounded-xl bg-white/15 font-bold">VP</div>
+          <div className="grid size-10 place-items-center rounded-xl bg-white/15 font-bold">PM</div>
           <span className="text-lg font-semibold">Publication Manager</span>
         </div>
         <div>

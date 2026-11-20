@@ -1,10 +1,8 @@
 // One command to run everything locally:
 //   npm run local
-// Starts the Firebase emulators (data saved in .emulator-data), loads the demo
-// data the first time, then starts the API (port 4001) and the web app (5173).
+// Starts clean Firebase emulators, then starts the API (port 4001) and the web app (5173).
 // Press Ctrl+C once to stop everything; emulator data is saved on exit.
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -52,30 +50,11 @@ async function waitFor(url, label, tries = 90) {
   throw new Error(`${label} did not start. Is Java installed? (java -version)`);
 }
 
-async function hasUsers() {
-  // Accounts live in the Firestore "users" collection (no Firebase Authentication).
-  const r = await fetch('http://127.0.0.1:8080/v1/projects/demo-pbms/databases/(default)/documents/users?pageSize=1').catch(() => null);
-  if (!r || !r.ok) return false;
-  const body = await r.json().catch(() => ({}));
-  return Array.isArray(body.documents) && body.documents.length > 0;
-}
-
-// Relative to the project root: the absolute path may contain spaces.
-const dataDir = './.emulator-data';
-const emuArgs = ['emulators:start', '--project', 'demo-pbms', '--export-on-exit', dataDir];
-if (existsSync(path.join(root, dataDir))) emuArgs.push('--import', dataDir);
+const emuArgs = ['emulators:start', '--project', 'demo-pbms'];
 
 console.log('[local] Starting Firebase emulators…');
 run('firebase', emuArgs, 'Firebase emulators');
 await waitFor('http://127.0.0.1:8080/', 'Firestore emulator');
-
-if (!(await hasUsers())) {
-  console.log('[local] Empty database — loading demo data…');
-  await new Promise((resolve, reject) => {
-    const seed = spawnIn('npm', ['run', 'seed']);
-    seed.on('exit', (code) => (code === 0 ? resolve() : reject(new Error('Seeding failed.'))));
-  });
-}
 
 console.log('[local] Starting API and web app…');
 run('npm', ['run', 'dev'], 'API/web');
